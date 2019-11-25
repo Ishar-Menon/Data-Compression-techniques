@@ -68,6 +68,7 @@ def huffmanGetCodes(root,currentCode):
 
     if(root.key != ""):
         codeTable[root.key] = currentCode
+        codeTable[currentCode] = root.key
     
     huffmanGetCodes(root.left,currentCode+"0")
     huffmanGetCodes(root.right,currentCode+"1")
@@ -96,12 +97,14 @@ def huffmanGetCodedString(content):
 
     remain = len(encodedString)%8
 
+    count = 0
     if(remain != 0):
         while(remain != 8):
             encodedString += "0"
             remain += 1
+            count += 1
 
-    codeTable["padding"] = remain
+    codeTable["padding"] = count 
 
     return encodedString
 
@@ -125,6 +128,22 @@ def huffmanWriteToFileBinary(byteEncodedArray):
     fileWriter = open("huffmanCompressed","wb")
     fileWriter.write(byteEncodedArray)
 
+def huffmanReadFileBinary(filename):
+    fileReader = open(filename,"rb")
+    curr = fileReader.read(1) 
+    eightBitVal = []
+    encodedString = ""
+    while(curr != b""):
+        asciiVal = int.from_bytes(curr,byteorder='big')
+        binVal = bin(asciiVal)[2:].rjust(8, '0')
+        encodedString += binVal
+        curr = fileReader.read(1)
+
+    length = len(encodedString)
+    encodedString = encodedString[0:(length-codeTable["padding"])]
+
+    return encodedString
+
 def huffmanCompress(filename):
     
     content = huffmanReadFileText(filename)
@@ -138,30 +157,39 @@ def huffmanCompress(filename):
 
     huffmanWriteToFileBinary(byteEncodedArray)
     huffmanSaveState("Codes")
+
+def huffmanGetOriginalString(encodedString):
     
+    length = len(encodedString)
+
+    currString = ""
+    decodedString = ""
+    for i in range(length):
+        currString += encodedString[i]
+        if(codeTable[currString] != ''):
+            decodedString += codeTable[currString]
+            currString = ""
+    
+    return decodedString
 
 
-node1 = Node("A",0.35,None,None)
-node2 = Node("B",0.1,None,None)
-node3 = Node("C",0.2,None,None)
-node4 = Node("D",0.2,None,None)
-node5 = Node("f",0.15,None,None)
+def huffmanWriteToFileText(decodedString):
 
-# nodeHeap = [node1,node2,node3,node4,node5]
-# heapq.heapify(nodeHeap)
+    fileWriter = open("huffmanDecompressed.txt","wb")
+    arr = []
+    for i in decodedString:
+        arr.append(ord(i))
+    btarr = bytearray(arr)
+    fileWriter.write(btarr)
 
-# huffmanCreateTree()
+def huffmanDecompress(filename):
+    
+    huffmanRestoreState("Codes")
+    encodedString = huffmanReadFileBinary("huffmanCompressed")
 
-# huffmanGetCodes(nodeHeap[0],"")
+    decodedString = huffmanGetOriginalString(encodedString)
+    huffmanWriteToFileText(decodedString)
 
-# for i in codeTable:
-#     print(i,codeTable[i])
 
-# print(node1,node2,node3) 
-# arr = [node1,node2,node3]
-# 
-# heapq.heapify(arr)
-# 
-# print(arr)
-
-huffmanCompress("info.txt")
+# huffmanCompress("../info.txt")
+huffmanDecompress("")
