@@ -215,8 +215,8 @@ def huffmanDecompress(filename):
     huffmanWriteToFileText(decodedString)
 
 
-# huffmanCompress("../info.txt")
-huffmanDecompress("")
+# huffmanCompress("../LZW/text.txt")
+# huffmanDecompress("")
 # huffmanRestoreState("Codes")
 # encodedString = huffmanReadFileBinary("huffmanCompressed")
 # dcs = huffmanGetOriginalString(encodedString)

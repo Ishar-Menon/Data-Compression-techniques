@@ -30,9 +30,10 @@ def encode(string):
         else:
             # print(frontChar,table[frontChar])
             outputCode.append(table[frontChar])
-            table[frontChar+next_char] = count
+            if(count <= 4000):
+                table[frontChar+next_char] = count
+                count += 1
             frontChar = next_char
-            count += 1
     outputCode.append(table[frontChar])
     # print(outputCode)
     return outputCode
@@ -158,6 +159,6 @@ def decompress(filename):
 
 
 ip = "WYS*WYGWYS*WYSWYSG"
-compress("info.txt")
+compress("text.txt")
 decompress("compressed")
 # decode(res)
