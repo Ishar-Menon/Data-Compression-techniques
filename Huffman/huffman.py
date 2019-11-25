@@ -1,9 +1,11 @@
 import heapq
 import pickle
+import os
 from collections import defaultdict
 
 frequencyTable = defaultdict(int)
 codeTable = defaultdict(str)
+revCodeTable = defaultdict(str)
 nodeHeap = []
 
 class Node:
@@ -27,7 +29,17 @@ def huffmanReadFileText(filename):
     
     return content
 
+def huffmanReadFileImage(filename):
 
+    fileReader = open(filename,"rb")
+    curr = fileReader.read(1) 
+    content = ""
+    while(curr != b""):
+        charNo = int.from_bytes(curr,byteorder='big')
+        content += chr(charNo)
+        curr = fileReader.read(1)
+
+    return content
 
 def huffmanPreProcess(content):
 
@@ -62,30 +74,31 @@ def huffmanCreateTree():
 def huffmanGetCodes(root,currentCode):
     
     global codeTable
+    global revCodeTable
 
     if(root == None):
         return
 
     if(root.key != ""):
         codeTable[root.key] = currentCode
-        codeTable[currentCode] = root.key
+        revCodeTable[currentCode] = root.key
     
     huffmanGetCodes(root.left,currentCode+"0")
     huffmanGetCodes(root.right,currentCode+"1")
 
 def huffmanSaveState(filename):
 
-    global codeTable
+    global revCodeTable
 
     fileWriter = open(filename,"wb")
-    pickle.dump(codeTable,fileWriter)
+    pickle.dump(revCodeTable,fileWriter)
 
 def huffmanRestoreState(filename):
 
-    global codeTable
+    global revCodeTable
 
     fileReader = open(filename,"rb")
-    codeTable = pickle.load(fileReader)
+    revCodeTable = pickle.load(fileReader)
 
 def huffmanGetCodedString(content):
 
@@ -104,7 +117,7 @@ def huffmanGetCodedString(content):
             remain += 1
             count += 1
 
-    codeTable["padding"] = count 
+    revCodeTable["padding"] = count 
 
     return encodedString
 
@@ -140,13 +153,21 @@ def huffmanReadFileBinary(filename):
         curr = fileReader.read(1)
 
     length = len(encodedString)
-    encodedString = encodedString[0:(length-codeTable["padding"])]
+    encodedString = encodedString[0:(length-revCodeTable["padding"])]
 
     return encodedString
 
-def huffmanCompress(filename):
+def huffmanCompress(fullname):
+
+    global revCodeTable
     
-    content = huffmanReadFileText(filename)
+    filename, file_extension = os.path.splitext(fullname) 
+
+    if(file_extension == ".txt"):
+        content = huffmanReadFileText(fullname)
+    elif(file_extension == ".jpg"):
+        content = huffmanReadFileImage(fullname)
+
     huffmanPreProcess(content)
 
     huffmanCreateTree()
@@ -156,6 +177,8 @@ def huffmanCompress(filename):
     byteEncodedArray = huffmangetGetBytesArray(encodedstring)
 
     huffmanWriteToFileBinary(byteEncodedArray)
+
+    revCodeTable['exten'] = file_extension
     huffmanSaveState("Codes")
 
 def huffmanGetOriginalString(encodedString):
@@ -166,8 +189,9 @@ def huffmanGetOriginalString(encodedString):
     decodedString = ""
     for i in range(length):
         currString += encodedString[i]
-        if(codeTable[currString] != ''):
-            decodedString += codeTable[currString]
+        if(revCodeTable[currString] != ''):
+            decodedString += revCodeTable[currString]
+            # print(codeTable[currString],currString)
             currString = ""
     
     return decodedString
@@ -175,7 +199,7 @@ def huffmanGetOriginalString(encodedString):
 
 def huffmanWriteToFileText(decodedString):
 
-    fileWriter = open("huffmanDecompressed.txt","wb")
+    fileWriter = open("huffmanDecompressed"+revCodeTable['exten'],"wb")
     arr = []
     for i in decodedString:
         arr.append(ord(i))
@@ -193,3 +217,13 @@ def huffmanDecompress(filename):
 
 # huffmanCompress("../info.txt")
 huffmanDecompress("")
+# huffmanRestoreState("Codes")
+# encodedString = huffmanReadFileBinary("huffmanCompressed")
+# dcs = huffmanGetOriginalString(encodedString)
+# print(codeTable["1"])
+# print(dcs)
+# text = huffmanReadFileImage("img.jpg")
+# print(text)
+
+# make seperate tables
+
