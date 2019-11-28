@@ -1,4 +1,10 @@
 from collections import defaultdict
+import os
+import pickle
+
+
+
+metaData = {}
 
 table = defaultdict(int)
 
@@ -119,12 +125,17 @@ def readFileBinary(filename):
         curr = fileWriter.read(1)
     
     return eightBitVal
-def readFileText(filename):
+def readFileText(fullname):
 
-    fileReader = open(filename,"r")
-    content = fileReader.read()
+    fileReader =open(fullname,'rb') 
 
-    return content 
+    curr = fileReader.read(1) 
+    content = ""
+    while(curr != b""):
+        content += chr(ord(curr))
+        curr = fileReader.read(1)
+
+    return content
 
 def writeTofileBinary(eightBitVal):
 
@@ -138,27 +149,58 @@ def writeToFileText(string):
     fileWriter = open("decompressed","w")
     fileWriter.write(string)
 
+def writeToFileDecompresedOutput(decodedString):
 
-def compress(filename):
+    fileWriter = open("LZWDecompressed"+metaData['f'],"wb")
+    arr = []
+    for i in decodedString:
+        arr.append(ord(i))
+    btarr = bytearray(arr)
+    fileWriter.write(btarr)
 
-    string = readFileText(filename)
+def saveState(filename):
+
+    global metaData
+    
+    with open(filename,"wb") as dictHandle:
+        pickle.dump(metaData,dictHandle)
+
+def restoreSate(filename):
+
+    global metaData
+
+    with open(filename,"rb") as dictHandle:
+        metaData = pickle.load(dictHandle)
+
+def compress(fullname):
+
+    global metaData
+    
+    filename, file_extension = os.path.splitext(fullname)
+    metaData["f"] = file_extension
+
+    string = readFileText(fullname)
     encodedVal = encode(string)
 
     eightBitVal = get8BitCodes(encodedVal)
 
+    saveState("fileFormat")
+    
     writeTofileBinary(eightBitVal)
+
 
 def decompress(filename):
 
+    restoreSate("fileFormat")
+    
     eightBitVal = readFileBinary(filename)
     originalCodes = getOriginalCodes(eightBitVal)
 
     decodedString = decode(originalCodes)
     
-    writeToFileText(decodedString)
+    writeToFileDecompresedOutput(decodedString)
 
 
-ip = "WYS*WYGWYS*WYSWYSG"
-compress("text.txt")
-decompress("compressed")
-# decode(res)
+
+# compress("text.txt")
+# decompress("compressed")
