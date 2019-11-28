@@ -157,6 +157,42 @@ def huffmanReadFileBinary(filename):
 
     return encodedString
 
+def huffmanWriteToFileText(decodedString):
+
+    fileWriter = open("huffmanDecompressed"+revCodeTable['exten'],"wb")
+    arr = []
+    for i in decodedString:
+        arr.append(ord(i))
+    btarr = bytearray(arr)
+    fileWriter.write(btarr)
+
+def huffmanCompressPDF(fullname):
+    
+    global revCodeTable
+
+    filename, file_extension = os.path.splitext(fullname) 
+    fileReader =open(fullname,'rb') 
+
+    curr = fileReader.read(1) 
+    content = ""
+    while(curr != b""):
+        # charNo = int.from_bytes(curr,byteorder='big')
+        content += chr(ord(curr))
+        curr = fileReader.read(1)
+
+    huffmanPreProcess(content)
+
+    huffmanCreateTree()
+    huffmanGetCodes(nodeHeap[0],"")
+
+    encodedstring = huffmanGetCodedString(content)
+    byteEncodedArray = huffmangetGetBytesArray(encodedstring)
+
+    huffmanWriteToFileBinary(byteEncodedArray)
+
+    revCodeTable['exten'] = file_extension
+    huffmanSaveState("Codes")
+
 def huffmanCompress(fullname):
 
     global revCodeTable
@@ -167,7 +203,9 @@ def huffmanCompress(fullname):
         content = huffmanReadFileText(fullname)
     elif(file_extension == ".jpg"):
         content = huffmanReadFileImage(fullname)
-
+    elif(file_extension == ".pdf"):
+        huffmanCompressPDF(fullname)
+        return
     huffmanPreProcess(content)
 
     huffmanCreateTree()
@@ -197,15 +235,6 @@ def huffmanGetOriginalString(encodedString):
     return decodedString
 
 
-def huffmanWriteToFileText(decodedString):
-
-    fileWriter = open("huffmanDecompressed"+revCodeTable['exten'],"wb")
-    arr = []
-    for i in decodedString:
-        arr.append(ord(i))
-    btarr = bytearray(arr)
-    fileWriter.write(btarr)
-
 def huffmanDecompress(filename):
     
     huffmanRestoreState("Codes")
@@ -215,7 +244,7 @@ def huffmanDecompress(filename):
     huffmanWriteToFileText(decodedString)
 
 
-# huffmanCompress("../LZW/text.txt")
+# huffmanCompressPDF("sample.pdf")
 # huffmanDecompress("")
 # huffmanRestoreState("Codes")
 # encodedString = huffmanReadFileBinary("huffmanCompressed")
