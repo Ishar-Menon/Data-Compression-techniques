@@ -222,7 +222,7 @@ def huffmanDecompress(filename):
     huffmanWriteToFileText(decodedString)
 
 
-# huffmanCompress("img.jpg")
+# huffmanCompress("../Test/ip1.txt")
 # huffmanDecompress("")
 # huffmanRestoreState("Codes")
 # encodedString = huffmanReadFileBinary("huffmanCompressed")

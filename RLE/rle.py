@@ -99,7 +99,7 @@ def rleDecompress(filename):
     decodedString = rleDecode(content)
     rleWriteFile(decodedString,"decoded.txt")
 
-ip = "wwwwraaadexxxxxxywwwmh"
+# ip = "wwwwraaadexxxxxxywwwmh"
 
-rleCompress("../info.txt")
-rleDecompress("")
+# rleCompress("../info.txt")
+# rleDecompress("")

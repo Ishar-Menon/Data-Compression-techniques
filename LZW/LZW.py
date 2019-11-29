@@ -211,5 +211,5 @@ def decompress(filename):
 
 
 
-# compress("../Test/ip1.txt")
+# compress("ip10.txt")
 # decompress("compressed")

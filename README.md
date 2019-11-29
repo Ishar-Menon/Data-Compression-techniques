@@ -1,2 +1,2 @@
 # Data-Compression-techniques
-Data Compression techniques - Comparitive Analysis
+Data Compression techniques - Comparative Analysis
