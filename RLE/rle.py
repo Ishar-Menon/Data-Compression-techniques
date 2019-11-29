@@ -11,16 +11,20 @@ def rleEncode(string):
     while(index < length):
 
         if(string[index] != currChar):
-            encodedString += (currChar + str(count))
+            if(count != 1):
+                encodedString += (currChar + str(count))
+            else:
+                encodedString += currChar
             currChar = string[index]
             count = 1   
         else:
             count += 1
 
         if(index == (length-1)):
+            if(count != 1):
                 encodedString += (currChar + str(count))
-
-
+            else:
+                encodedString += currChar
         index += 1
 
 
@@ -38,8 +42,8 @@ def rleDecode(encodedString):
     length = len(encodedString)
 
     currChar = encodedString[0]
-    currNum = int(encodedString[1])
-    index = 2
+    currNum = 0
+    index = 1
 
     while(index < length):
         
@@ -47,17 +51,22 @@ def rleDecode(encodedString):
             currNum = currNum*10 + int(encodedString[index])
         else:
             
-
-            for i in range(currNum):
+            if(currNum == 0):
                 decodedString += currChar
-            
+            else:
+                for i in range(currNum):
+                    decodedString += currChar
+
             currChar = encodedString[index]
             currNum = 0
     
         index += 1
     
-    for i in range(currNum):
-                decodedString += currChar
+    if(currNum == 0):
+        decodedString += currChar
+    else:
+        for i in range(currNum):
+            decodedString += currChar
 
     return decodedString
 
@@ -90,7 +99,7 @@ def rleDecompress(filename):
     decodedString = rleDecode(content)
     rleWriteFile(decodedString,"decoded.txt")
 
-ip = "wwwwaaadexxxxxxywww"
+ip = "wwwwraaadexxxxxxywwwmh"
 
-# rleCompress("../info.txt")
-# rleDecompress("")
+rleCompress("../info.txt")
+rleDecompress("")
