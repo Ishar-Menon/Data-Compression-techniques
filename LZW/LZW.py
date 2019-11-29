@@ -78,7 +78,14 @@ def decode(outputCode):
 
 def get8BitCodes(codes):
     res = []
+
     n=len(codes)
+
+    if(n%2 != 0):
+        codes.append(0)
+
+    n = n+1
+
     for i in range(0,n-1,2):
         upperEight = codes[i]>>4
         lowerFour = codes[i]&0x0F
@@ -113,6 +120,8 @@ def getOriginalCodes(eightBitVal):
 
         original.append(or1)
         original.append(or2)
+    if(original[len(original)-1] == 0):
+        original.pop()
     return original
 
 def readFileBinary(filename):
@@ -202,5 +211,5 @@ def decompress(filename):
 
 
 
-# compress("text.txt")
+# compress("../Test/ip1.txt")
 # decompress("compressed")
